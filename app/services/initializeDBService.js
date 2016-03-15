@@ -12,7 +12,7 @@ module.exports={
 		.then(function(){
 			return Knex.schema.createTableIfNotExists('User', function(t){
 				t.integer('id', 256).unsigned().primary();
-				t.string('screen_name', 256);
+				t.string('screen_name', 256).unique();
 				t.integer('followers_count').unsigned();
 				t.integer('friends_count').unsigned();
 			});
