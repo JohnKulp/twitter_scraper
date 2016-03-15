@@ -95,10 +95,13 @@ router.get('/time_most_active', function(req, res, next){
 	if(!isNaN(req.query.screenName)){
 		screen_name = req.query.screenName;
 	}
-	params = {"screen_name": screen_name}
+	params = {"screen_name": screen_name, "count": 150}
 
 	client.get('statuses/user_timeline', params, function(error, tweets, response){
-		if(error) throw new Error(JSON.stringify(error));
+		if(error) {
+			res.send(JSON.stringify(error))
+			return
+		}
 		//console.log(tweets);  // The favorites. 
 
 		times_created = []
@@ -134,7 +137,10 @@ router.get('/app_used', function(req, res, next){
 
 
 	client.get('statuses/user_timeline', params, function(error, tweets, response){
-		if(error) throw new Error(JSON.stringify(error));
+		if(error) {
+			res.send(JSON.stringify(error))
+			return
+		}
 		//console.log(tweets);  // The favorites. 
 
 		sources = []
@@ -154,4 +160,197 @@ router.get('/app_used', function(req, res, next){
 	});
 });
 
+router.get('/num_followers', function(req, res, next){
+	var client = make_client();
+
+
+	//default values
+	var screen_name = "@LilTunechi";
+
+	if(!isNaN(req.query.screenName)){
+		screen_name = req.query.screenName;
+	}
+	params = {"screen_name": screen_name }
+
+	total = 0
+
+	client.get('users/show', params, function getData(error, data, response){
+		if(error) {
+			res.send(JSON.stringify(error))
+			return
+		}
+
+		res.send(data["followers_count"] + ' friends')
+	});
+});
+
+router.get('/num_friends', function(req, res, next){
+	var client = make_client();
+
+
+	//default values
+	var screen_name = "@LilTunechi";
+
+	if(!isNaN(req.query.screenName)){
+		screen_name = req.query.screenName;
+	}
+	params = {"screen_name": screen_name}
+
+	client.get('users/show', params, function getData(error, data, response){
+		if(error) {
+			res.send(JSON.stringify(error))
+			return
+		}
+
+
+		res.send(data["friends_count"] + ' friends')
+	});
+
+
+	total = 0
+
+});
 module.exports = router;
+
+router.get('/ratio_of_tweets_with_links', function(req, res, next){
+	var client = make_client();
+
+
+	//default values
+	var screen_name = "@LilTunechi";
+
+	if(!isNaN(req.query.screenName)){
+		screen_name = req.query.screenName;
+	}
+	params = {"screen_name": screen_name, "count": 150}
+
+	client.get('statuses/user_timeline', params, function getData(error, tweets, response){
+		if(error) {
+			res.send(JSON.stringify(error))
+			return
+		}
+
+
+		num_links = 0
+
+		for (var i = 0; i < tweets.length; i++){
+			console.log(tweets[i]["entities"]["urls"])
+			if (tweets[i]["entities"]["urls"].length != 0){
+				num_links ++
+			}
+		}
+
+
+		res.send(num_links + "/" + tweets.length)
+	});
+
+
+	total = 0
+
+});
+
+
+router.get('/top_ten_words', function(req, res, next){
+	var client = make_client();
+
+
+	//default values
+	var screen_name = "@LilTunechi";
+
+	if(!isNaN(req.query.screenName)){
+		screen_name = req.query.screenName;
+	}
+	params = {"screen_name": screen_name, "count": 150}
+
+	word_count = {}
+
+	client.get('statuses/user_timeline', params, function getData(error, tweets, response){
+		if(error) {
+			res.send(JSON.stringify(error))
+			return
+		}
+
+		words = []
+
+		word_regex = /[\w']+/g;
+		//this is a bad regex with some false positives, but its way faster than the full URL regex
+		url_regex = /(https?:\/\/[^\s]+)/g
+
+		for (var i = 0; i < tweets.length; i++){
+			lowercase_text = tweets[i]["text"].toLowerCase()
+			lowercase_text = lowercase_text.replace(url_regex, "")
+			console.log(lowercase_text)
+			new_words = lowercase_text.match(word_regex)
+			if (new_words != null){
+				words = words.concat(new_words)
+			}
+		}
+
+
+		for(var i = 0; i < words.length; i++){
+			word_count[words[i]] = word_count[words[i]] == undefined? 1: word_count[words[i]]+1;
+		}
+
+		max_list = {'':-Infinity, ',':-Infinity, '.':-Infinity, '/':-Infinity, ';':-Infinity, 
+					'$':-Infinity, '=':-Infinity, '-':-Infinity, '[':-Infinity, ']':-Infinity}
+
+		for( var word in word_count) {
+
+			//check the word's count against the array's minimum.
+			//this could be faster if I built a datastructure to remember the min value
+			temp_min = -1
+			temp_min_value = Infinity
+			for(var i in max_list){
+				if(max_list[i] <= temp_min_value){
+					temp_min = i
+					temp_min_value = max_list[i]
+				}
+			}
+			//console.log(temp_min + ": " + temp_min_value)
+			//if the min is less than the word_count, replace it
+			if(word_count[word] > temp_min_value){
+				delete max_list[temp_min]
+				max_list[word] = word_count[word]
+			}
+		}
+
+
+		res.send(max_list)
+	});
+
+
+	total = 0
+
+});
+
+module.exports = router;
+
+/*
+
+cursors code if I need it later:
+
+	client.get('friends/ids', params,  function getData(error, data, response) {
+		if(error) {
+			res.send(JSON.stringify(error))
+			return
+		}
+
+		if (data["ids"] != undefined){
+			total += data["ids"].length
+
+		}
+		console.log(data)
+
+		// Recursive callback with cursors:
+		if(data['next_cursor'] > 0){
+			client.get('friends/ids', { screen_name: 'twitter', next_cursor: data['next_cursor'] }, getData);
+		}
+		else{
+			res.send(total + " friends")
+			//this is the last call, so we can return the value
+		}
+
+	});
+
+
+*/

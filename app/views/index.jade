@@ -7,13 +7,14 @@ block content
 
   h2 current problems with the app
   p I only hold collect a small sample of messages at once.  This is due to testing time for development
+  p I can also whip something up in JQuery to run all of the queries from this front page using AJAX
 
 
   <br>
   h2 Data Entry
   <br>
   p enter a user's screen name:
-  input#screenName(type="text" value="#LilTunechi")
+  input#screenName(type="text" value="LilTunechi")
   br
   h2 Operations
   br
@@ -23,3 +24,19 @@ block content
   br
 
   button(type="submit", onclick="location.href = '/twitter/app_used?screenName=' + document.getElementById('screenName').value;")#mostFrequent Most Frequent App used
+  br
+  br
+
+  button(type="submit", onclick="location.href = '/twitter/num_followers?screenName=' + document.getElementById('screenName').value;")#numFollowers Number of Followers
+  br
+  br
+
+  button(type="submit", onclick="location.href = '/twitter/num_friends?screenName=' + document.getElementById('screenName').value;")#numFriends Number of Friends
+  br
+  br
+
+  button(type="submit", onclick="location.href = '/twitter/ratio_of_tweets_with_links?screenName=' + document.getElementById('screenName').value;")#tweetsWithLinks Ratio of Tweets with Links
+  br
+  br
+
+  button(type="submit", onclick="location.href = '/twitter/top_ten_words?screenName=' + document.getElementById('screenName').value;")#topTenWords Top Ten Most Common Words
