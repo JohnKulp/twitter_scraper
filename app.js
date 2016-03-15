@@ -14,8 +14,8 @@ var app = module.exports = express();
 
 //initialize database modules
 var db = require('./config/db');
-services.initializeDBService.initializeDB();
-services.populateDBService.add_user('@LilTunechi')
+services.initializeDBService.initializeDB()
+.then(services.populateDBService.add_user('LilTunechi')).then();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'app/views'));

@@ -102,7 +102,6 @@ router.get('/time_most_active', function(req, res, next){
 			res.send(JSON.stringify(error))
 			return
 		}
-		//console.log(tweets);  // The favorites. 
 
 		times_created = []
 
@@ -116,7 +115,6 @@ router.get('/time_most_active', function(req, res, next){
 				times_created.push(parseInt(match[0].substring(0,2)))
 			}
 		}
-		console.log(times_created)
 
 		res.send(get_most_active_time(times_created))
 	});
