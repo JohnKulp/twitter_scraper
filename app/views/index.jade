@@ -2,4 +2,9 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  p enter a user's screen name:
+  input#screenName(type="text" value="#LilTunechi")
+  br
+  br
+
+  button(type="submit", onclick="location.href = '/twitter/time_most_active?screenName=' + document.getElementById('screenName').value;")#mostActive Most Active Time of Day 
