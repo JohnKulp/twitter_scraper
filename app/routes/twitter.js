@@ -17,18 +17,29 @@ router.get('/connect', function(req, res, next) {
 router.get('/time_most_active', function(req, res, next){
 	var client = new Twitter({
 		//this would be obfuscated in an encrypted file if I had more time
-		consumer_key: 'CxOdceff14ViJbttAoXOMCMnF', 
-		consumer_secret: '	otX6tST4w132KaMRVz8yZTMpB6Ni75jhU1izFFNIwF8EsHqsUH',
-		access_token_key: '4100378968-ohyvNyy2527Udcw4zrdOjBOqB2Dt6ZAOCnMejvC',
-		access_token_secret: '5XrudxawWxi8Vcs1bp8iD6FXyW7pl2HTXD6CL7PK9fzb0'
+		consumer_key: 'Mp9SqyDViTRezM0C4lz6EWXuo', 
+		consumer_secret: 'DDZTiKKakRNFAACXKEJPEygHZTSOgvaJh4ZZzkWnYuIoCqQbkf',
+		access_token_key: '4100378968-ofeWCenRlX46fte4teRkDsYOgMYWWj6S75P4qG9',
+		access_token_secret: 'BXwI1S8z0MdN4TbwOIiP1kdfLXRovRzJKkjAdjiiOZW5t'
 	});
+
 
 	params = {"screen_name": "@LilTunechi"}
 
 	client.get('statuses/user_timeline', params, function(error, tweets, response){
-		if(error) throw error;
-		console.log(tweets);  // The favorites. 
-		console.log(response);  // Raw response object. 
+		if(error) throw new Error(JSON.stringify(error));
+		//console.log(tweets);  // The favorites. 
+
+		time_created = []
+
+
+		for (var i = 0; i < tweets.length; i++){
+			console.log(tweets[i])
+			console.log(tweets[i]['created_at'])
+			time_created.push(tweets[i]['created_at'])
+		}
+		console.log(time_created)
+		//console.log(response);  // Raw response object. 
 	});
 });
 
