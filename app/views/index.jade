@@ -1,10 +1,25 @@
 extends layout
 
 block content
-  h1= title
+  h1 Twitter Scraper
+
+  <br>
+
+  h2 current problems with the app
+  p I only hold collect a small sample of messages at once.  This is due to testing time for development
+
+
+  <br>
+  h2 Data Entry
+  <br>
   p enter a user's screen name:
   input#screenName(type="text" value="#LilTunechi")
   br
+  h2 Operations
   br
 
   button(type="submit", onclick="location.href = '/twitter/time_most_active?screenName=' + document.getElementById('screenName').value;")#mostActive Most Active Time of Day 
+  br
+  br
+
+  button(type="submit", onclick="location.href = '/twitter/app_used?screenName=' + document.getElementById('screenName').value;")#mostFrequent Most Frequent App used
