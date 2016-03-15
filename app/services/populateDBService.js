@@ -12,6 +12,7 @@ var Knex = require('../../config/db').Knex;
 //dictionary for max id storage when we run out of allowed queries
 var max_ids = {}
 
+
 var client = new twitter({
 		consumer_key: CONSUMER_KEY, 
 		consumer_secret: CONSUMER_SECRET,
@@ -24,8 +25,8 @@ var client = new twitter({
 
 //this function allows for promisified cursoring through the tweets
 function get_tweets_and_insert(screen_name){
+	var Knex = require('../../config/db').Knex;
 
-	//Knex.select().from("Tweet")
 
 	return Knex.raw('SELECT MIN(id) AS max_id FROM Tweet WHERE screen_name="'+screen_name+'"')
 	.then(function(data){
@@ -33,7 +34,7 @@ function get_tweets_and_insert(screen_name){
 		console.log(data[0].max_id)
 		console.log(data[0].max_id-1)
 		max_id = data[0].max_id-1
-		params = {"screen_name": screen_name, "count": 150, "max_id":max_id}
+		params = {"screen_name": screen_name, "count": 10, "max_id":max_id}
 		if(params.max_id==-1){
 			delete params.max_id
 		}
@@ -42,7 +43,16 @@ function get_tweets_and_insert(screen_name){
 		api_get = client.get('statuses/user_timeline', params)
 			.then(function(data){
 				//console.log(data.data[0])
-				//console.log(data.data)
+				console.log(data.data.errors)
+				if(data.data.errors[0].code == 88){
+					//rate limit exceeded
+					console.log("exceeded rate limit!");
+					return Knex.raw("UPDATE User SET start_id=(SELECT MAX(ID) FROM Tweet WHERE screen_name = '"+screen_name+"') WHERE screen_name = '" + screen_name+"';")
+						.then(function(data){
+							console.log("updated start_id!");
+							console.log(data)
+						})
+				}
 				console.log("new batch: ")
 				console.log("data from twitter req: ")
 				console.log(data.data.length)
@@ -82,7 +92,7 @@ function get_tweets_and_insert(screen_name){
 					});
 				}
 
-				//console.log(rows)
+				console.log(rows)
 
 				inserts = Knex.batchInsert('Tweet', rows).then(function(){
 					console.log("inserted all rows!")
@@ -107,9 +117,6 @@ function get_tweets_and_insert(screen_name){
 
 		return api_get
 	})
-
-	console.log("end ids: " + JSON.stringify(max_ids))
-
 
 }
 

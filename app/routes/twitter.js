@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var Twitter = require('twitter');
+var Knex = require('../../config/db').Knex;
 
 
 router.get('/', function(req, res, next) {
