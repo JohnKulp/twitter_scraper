@@ -19,24 +19,30 @@ block content
   h2 Operations
   br
 
-  button(type="submit", onclick="location.href = '/twitter/time_most_active?screenName=' + document.getElementById('screenName').value;")#mostActive Most Active Time of Day 
+  button(type="submit")#mostActive Most Active Time of Day 
+  span#mostActiveText
   br
   br
 
-  button(type="submit", onclick="location.href = '/twitter/app_used?screenName=' + document.getElementById('screenName').value;")#mostFrequent Most Frequent App used
+  button(type="submit")#mostFrequent Most Frequent App used
+  span#mostFrequentText
   br
   br
 
-  button(type="submit", onclick="location.href = '/twitter/num_followers?screenName=' + document.getElementById('screenName').value;")#numFollowers Number of Followers
+  button(type="submit")#numFollowers Number of Followers
+  span#numFollowersText
   br
   br
 
-  button(type="submit", onclick="location.href = '/twitter/num_friends?screenName=' + document.getElementById('screenName').value;")#numFriends Number of Friends
+  button(type="submit")#numFriends Number of Friends
+  span#numFriendsText
   br
   br
 
-  button(type="submit", onclick="location.href = '/twitter/ratio_of_tweets_with_links?screenName=' + document.getElementById('screenName').value;")#tweetsWithLinks Ratio of Tweets with Links
+  button(type="submit")#tweetsWithLinks Ratio of Tweets with Links
+  span#tweetsWithLinksText
   br
   br
 
-  button(type="submit", onclick="location.href = '/twitter/top_ten_words?screenName=' + document.getElementById('screenName').value;")#topTenWords Top Ten Most Common Words
+  button(type="submit")#topTenWords Top Ten Most Common Words
+  span#topTenWordsText

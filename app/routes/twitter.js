@@ -86,6 +86,28 @@ function make_client(){
 }
 
 
+router.get('/load_user_into_db', function(req, res, next){
+	var services = require('../services');
+
+
+	screen_name = ''
+	if(!isNaN(req.query.screenName)){
+		screen_name = req.query.screenName;
+	}
+	else{
+		res.send('please send a twitter handle to add to the database')
+	}
+
+
+	result = services.populateDBService.add_user(screen_name);
+
+	result.then(function(data){
+		res.send(data)
+	})
+
+
+});
+
 
 
 router.get('/time_most_active', function(req, res, next){
@@ -158,7 +180,7 @@ router.get('/app_used', function(req, res, next){
 });
 
 
-router.get('/direct_num_followers', function(req, res, next){
+router.get('/num_followers', function(req, res, next){
 	var Knex = require('../../config/db').Knex;
 
 
@@ -171,14 +193,15 @@ router.get('/direct_num_followers', function(req, res, next){
 
 	Knex.select('followers_count').from("User").where('screen_name','=', screen_name)
 	.then(function(data){
+		console.log(data)
 		
-		res.send(mode(data[0].followers_count))
+		res.send(String(data[0].followers_count))
 
 	});
 
 });
 
-router.get('/direct_num_friends', function(req, res, next){
+router.get('/num_friends', function(req, res, next){
 	var Knex = require('../../config/db').Knex;
 
 
@@ -191,8 +214,9 @@ router.get('/direct_num_friends', function(req, res, next){
 
 	Knex.select('friends_count').from("User").where('screen_name','=', screen_name)
 	.then(function(data){
+		console.log(data)
 		
-		res.send(mode(data[0].friends_count))
+		res.send(String(data[0].friends_count))
 
 	});
 
