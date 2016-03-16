@@ -122,12 +122,18 @@ router.get('/time_most_active', function(req, res, next){
 	Knex.select('time_created').from("Tweet").where('screen_name','=', screen_name)
 	.then(function(data){
 
+		if (data.length==0){
+			res.send("couldn't find user " + screen_name)
+			return
+		}
+
 		times_created = []
 
 		//match just the time value in the string.  I don't care about dates
 		time_regex = /([0-9]{2}:){2}[0-9]{2}/
 
 		for (var i = 0; i < data.length; i++){
+
 			match = time_regex.exec(data[i].time_created)
 			//if the match is found, it will be in the first location of the returned array
 			if(match!=null){

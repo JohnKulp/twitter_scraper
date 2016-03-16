@@ -53,6 +53,17 @@ function get_tweets_and_insert(screen_name){
 							console.log(data)
 						})
 				}
+				else if(data.data.errors != undefined && data.data.errors[0].code == 34){
+					//rate limit exceeded
+					console.log("page not found!");
+					return data.data.errors
+				}
+				else if(data.data.errors != undefined){
+					//rate limit exceeded
+					console.log("error!");
+					console.log(data.data.errors)
+					return data.data.errors
+				}
 				if (data.data.length == 0) {
 					console.log("returning due to empty data")
 					return "success"
