@@ -6,8 +6,8 @@ block content
   <br>
 
   h2 current problems with the app
-  p I only hold collect a small sample of messages at once.  This is due to testing time for development
-  p I can also whip something up in JQuery to run all of the queries from this front page using AJAX
+  p I don't have a cron to update with the newest tweets
+  p however, this can be done fairly simply using code that I already have and basing collected tweets off of the start_id instead of the end_id
 
 
   <br>
@@ -17,6 +17,11 @@ block content
   input#screenName(type="text" value="LilTunechi")
   br
   h2 Operations
+  br
+
+  button(type="submit")#loadTweets Load Tweets into the Database
+  span#loadTweetsResp
+  br
   br
 
   button(type="submit")#mostActive Most Active Time of Day 

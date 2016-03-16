@@ -4,14 +4,6 @@ var router = express.Router();
 var Twitter = require('twitter');
 
 
-router.get('/', function(req, res, next) {
-	
-	res.send('twitter')
-});
-router.get('/connect', function(req, res, next) {
-	
-	res.send('twitter')
-});
 
 function mode(arr){
 	var frequency = {}  // array of frequency.
@@ -90,21 +82,22 @@ router.get('/load_user_into_db', function(req, res, next){
 	var services = require('../services');
 
 
-	screen_name = ''
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
-	}
-	else{
-		res.send('please send a twitter handle to add to the database')
-	}
 
+	var screen_name = req.query.screen_name;
+	
+	if (screen_name == undefined || screen_name == null || screen_name == ""){
+		res.send("please type a twitter name to add to the db")
+		return
+	}
+	screen_name = screen_name.toLowerCase()
 
 	result = services.populateDBService.add_user(screen_name);
 
 	result.then(function(data){
 		res.send(data)
+	}).catch(function(error){
+		res.send(error)
 	})
-
 
 });
 
@@ -114,12 +107,17 @@ router.get('/time_most_active', function(req, res, next){
 	var Knex = require('../../config/db').Knex;
 
 
-	//default values
-	var screen_name = "LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	var screen_name = req.query.screen_name;
+
+	if (screen_name == undefined || screen_name == null || screen_name == ""){
+		screen_name = "LilTunechi";
 	}
+
+	screen_name = screen_name.toLowerCase()
+
+	//default values
+
 
 	Knex.select('time_created').from("Tweet").where('screen_name','=', screen_name)
 	.then(function(data){
@@ -150,9 +148,10 @@ router.get('/app_used', function(req, res, next){
 	//default values
 	var screen_name = "LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
+	screen_name = screen_name.toLowerCase()
 
 	Knex.select('source').from("Tweet").where('screen_name','=', screen_name)
 	.then(function(data){
@@ -187,9 +186,10 @@ router.get('/num_followers', function(req, res, next){
 	//default values
 	var screen_name = "LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
+	screen_name = screen_name.toLowerCase()
 
 	Knex.select('followers_count').from("User").where('screen_name','=', screen_name)
 	.then(function(data){
@@ -208,9 +208,10 @@ router.get('/num_friends', function(req, res, next){
 	//default values
 	var screen_name = "LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
+	screen_name = screen_name.toLowerCase()
 
 	Knex.select('friends_count').from("User").where('screen_name','=', screen_name)
 	.then(function(data){
@@ -231,9 +232,10 @@ router.get('/ratio_of_tweets_with_links', function(req, res, next){
 	//default values
 	var screen_name = "@LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
+	screen_name = screen_name.toLowerCase()
 
 
 	Knex.raw('SELECT (SELECT COUNT(*) FROM Tweet WHERE is_url = 1) AS has_url, count(*) as total FROM Tweet;')// WHERE screen_name=\'' + screen_name + '\';')
@@ -254,12 +256,13 @@ router.get('/top_ten_words', function(req, res, next){
 	//default values
 	var screen_name = "LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
 	word_count = {}
 
 
+	screen_name = screen_name.toLowerCase()
 
 
 	Knex.select('text').from("Tweet").where('screen_name','=', screen_name)
@@ -331,8 +334,8 @@ router.get('/direct_time_most_active', function(req, res, next){
 	//default values
 	var screen_name = "@LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
 	params = {"screen_name": screen_name, "count": 150}
 
@@ -367,8 +370,8 @@ router.get('/direct_app_used', function(req, res, next){
 	//default values
 	var screen_name = "@LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
 	params = {"screen_name": screen_name}
 
@@ -403,8 +406,8 @@ router.get('/direct_num_followers', function(req, res, next){
 	//default values
 	var screen_name = "@LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
 	params = {"screen_name": screen_name }
 
@@ -425,8 +428,8 @@ router.get('/direct_num_friends', function(req, res, next){
 	//default values
 	var screen_name = "@LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
 	params = {"screen_name": screen_name}
 
@@ -451,8 +454,8 @@ router.get('/direct_ratio_of_tweets_with_links', function(req, res, next){
 	//default values
 	var screen_name = "@LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
 	params = {"screen_name": screen_name, "count": 150}
 
@@ -486,8 +489,8 @@ router.get('/direct_top_ten_words', function(req, res, next){
 	//default values
 	var screen_name = "@LilTunechi";
 
-	if(!isNaN(req.query.screenName)){
-		screen_name = req.query.screenName;
+	if(!isNaN(req.query.screen_name)){
+		screen_name = req.query.screen_name;
 	}
 	params = {"screen_name": screen_name, "count": 150}
 

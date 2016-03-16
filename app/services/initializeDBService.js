@@ -14,10 +14,10 @@ module.exports={
 
 		create_tweets = promise.all([drop_user, drop_tweet]).then(function(){*/
 			
-
-
+			console.log("checking if user table exists")
 			create_user = Knex.schema.hasTable('User').then(function(exists) {
 				if (!exists) {
+					console.log("creating user table")
 					return Knex.schema.createTable('User', function(t){
 						t.integer('id', 256).unsigned().primary();
 						t.string('screen_name', 256).unique();
@@ -29,8 +29,10 @@ module.exports={
 				}
 			});
 
+			console.log("checking if tweet table exists")
 			create_tweet = Knex.schema.hasTable('Tweet').then(function(exists) {
 				if (!exists) {
+					console.log("creating tweet table")
 					return Knex.schema.createTable('Tweet', function(t){
 						t.integer('id', 256).unsigned().primary();
 						t.string('screen_name', 256).references("User");
@@ -41,6 +43,11 @@ module.exports={
 					});
 				}
 			});
+
+			Knex.select().from("User").then(function(data){
+				console.log("vanessa table:")
+				console.log(data)
+			})
 
 			return promise.all([create_user, create_tweet]);
 		/*})

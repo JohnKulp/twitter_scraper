@@ -28,8 +28,9 @@ function get_tweets_and_insert(screen_name){
 	var Knex = require('../../config/db').Knex;
 
 
-	return Knex.raw('SELECT MIN(id) AS max_id FROM Tweet WHERE screen_name="'+screen_name+'"')
+	return Knex.raw('SELECT MIN(id) AS max_id FROM Tweet WHERE screen_name="'+screen_name+'" COLLATE NOCASE')
 	.then(function(data){
+		console.log("\ncollecting a batch of tweets")
 		console.log("max_id:")
 		console.log(data[0].max_id-1)
 		max_id = data[0].max_id-1
@@ -54,11 +55,7 @@ function get_tweets_and_insert(screen_name){
 				}
 				if (data.data.length == 0) {
 					console.log("returning due to empty data")
-					return 	Knex.raw("UPDATE User SET start_id=(SELECT MAX(ID) FROM Tweet WHERE screen_name = '"+screen_name+"') WHERE screen_name = '" + screen_name+"';")
-						.then(function(data){
-							console.log("updated start_id!");
-							console.log(data)
-						})
+					return "success"
 				}
 				var i;
 
@@ -79,25 +76,31 @@ function get_tweets_and_insert(screen_name){
 
 					rows.push({
 						"id":data.data[i].id,
-						"screen_name":data.data[i].user.screen_name,
+						"screen_name":data.data[i].user.screen_name.toLowerCase(),
 						"time_created":data.data[i].created_at,
 						"source":data.data[i].source,
 						"text":data.data[i].text,
 						"is_url":is_url
 					});
 				}
-
 				//console.log(rows)
+
+				if (rows.length==0){
+					console.log(data.data);
+					console.log("rows was [], returning")
+					return "not sure what happened"
+				}
 
 				inserts = Knex.batchInsert('Tweet', rows).then(function(){
 					console.log("inserted all rows!")
 				}).catch(function(error){
 					console.log("error!")
 					console.log(error)
-				}).then()
+					return new Error(error)
+				})
 				
 				return inserts
-				.then(function(){console.log('hi')}).then(get_tweets_and_insert(screen_name))
+				.then(get_tweets_and_insert(screen_name))
 
 
 			}).catch(function(error){
@@ -120,33 +123,43 @@ module.exports={
 
 	add_user: function(screen_name){
 
-		params = {"screen_name": screen_name}
-/*
-			api_get = client.get('statuses/user_timeline', {"screen_name": screen_name, "count": 2, "max_id": max_ids[screen_name]})
+
+		console.log("adding " + screen_name)
+
+		Knex.select('id').from('User').where('screen_name','=', screen_name).then(function(data){
+			/*if (data != []){
+				return "the twitter handle already exists in the db"
+			}*/
+
+	/*
+				api_get = client.get('statuses/user_timeline', {"screen_name": screen_name, "count": 2, "max_id": max_ids[screen_name]})
+				.then(function(data){
+					console.log(JSON.stringify(data))
+				}).catch(function(error){
+					console.log(error)
+				});*/
+
+			params = {"screen_name": screen_name}
+			get_user = client.get('users/show', params)
 			.then(function(data){
-				console.log(JSON.stringify(data))
+				console.log("inserting user")
+				return Knex.insert({
+					"id":data.data.id,
+					"screen_name":data.data.screen_name.toLowerCase(),
+					"followers_count":data.data.followers_count,
+					"friends_count":data.data.friends_count
+				}).into('User')
 			}).catch(function(error){
-				console.log(error)
-			});*/
+				return error
+			});
+			return get_user.then(function(data){
+				console.log("data from user insert: " + data)
+				console.log("")
+				return get_tweets_and_insert(screen_name)
+			})
 
-		get_user = client.get('users/show', params)
-		.then(function(data){
-			console.log("inserting user")
-			return Knex.insert({
-				"id":data.data.id,
-				"screen_name":data.data.screen_name,
-				"followers_count":data.data.followers_count,
-				"friends_count":data.data.friends_count
-			}).into('User')
-		}).catch(function(error){
-			return error
-		});
-		return get_user.then(function(data){
-			console.log("data from user insert: " + data)
-			return get_tweets_and_insert(screen_name)
+			
 		})
-		
-
 
 	}
 }
